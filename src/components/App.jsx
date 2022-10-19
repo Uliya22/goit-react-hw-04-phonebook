@@ -23,8 +23,7 @@ export class App extends Component {
     if (parsedContacts) {
       this.setState({ contacts: parsedContacts });
     }
-    
-}
+  }
 
   componentDidUpdate(prevProps, prevState) {
     if (this.state.contacts !== prevState.contacts) {
@@ -35,11 +34,12 @@ export class App extends Component {
   formSubmitHendler = data => {
     const contact = {
       id: nanoid(),
-      name: data.name,
-      number: data.number,
+      // name: data.name,
+      // number: data.number,
+      ...data,
     };
 
-    if (this.state.contacts.find(item => item.name === contact.name))
+    if (this.state.contacts.find(item => item.name.toLowerCase() === contact.name.toLowerCase()))
       alert(`"${contact.name}" is already in contacts.`);
     else {
       this.setState(({ contacts }) => ({
@@ -61,7 +61,7 @@ export class App extends Component {
     );
   };
 
-  deliteContact = contactId => {
+  deleteContact = contactId => {
     this.setState(prevState => ({
       contacts: prevState.contacts.filter(contact => contact.id !== contactId),
     }));
@@ -78,7 +78,7 @@ export class App extends Component {
         <Filter value={this.state.filter} onChange={this.changeFilter} />
         <ContactList
           contacts={visibleContacts}
-          onDeliteContact={this.deliteContact}
+          onDeleteContact={this.deleteContact}
           id={this.state.contacts.id}
         />
       </div>
