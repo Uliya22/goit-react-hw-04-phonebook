@@ -34,8 +34,6 @@ export class App extends Component {
   formSubmitHendler = data => {
     const contact = {
       id: nanoid(),
-      // name: data.name,
-      // number: data.number,
       ...data,
     };
 
