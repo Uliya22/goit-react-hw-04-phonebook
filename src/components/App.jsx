@@ -1,85 +1,76 @@
-import React, { Component } from 'react';
+import { useState, useEffect } from 'react';
 import { nanoid } from 'nanoid';
-import { ContactForm } from './contactform/ContactForm';
+import  {ContactForm}  from './contactform/ContactForm';
 import { Filter } from './filter/Filter';
 import { ContactList } from './contactList/ContactList';
 import css from './App.module.css';
 
-export class App extends Component {
-  state = {
-    contacts: [
-      { id: 'id-1', name: 'Rosie Simpson', number: '459-12-56' },
-      { id: 'id-2', name: 'Hermione Kline', number: '443-89-12' },
-      { id: 'id-3', name: 'Eden Clements', number: '645-17-79' },
-      { id: 'id-4', name: 'Annie Copeland', number: '227-91-26' },
-    ],
-    filter: '',
-  };
+export const App = () => {
+  const initialContacts = [
+    { id: 'id-1', name: 'Rosie Simpson', number: '459-12-56' },
+    { id: 'id-2', name: 'Hermione Kline', number: '443-89-12' },
+    { id: 'id-3', name: 'Eden Clements', number: '645-17-79' },
+    { id: 'id-4', name: 'Annie Copeland', number: '227-91-26' },
+  ];
+  const [contacts, setContacts] = useState(
+    JSON.parse(localStorage.getItem('contacts')) ?? initialContacts
+  );
 
-  componentDidMount() {
-    const contacts = localStorage.getItem('contacts');
-    const parsedContacts = JSON.parse(contacts);
+  const [filter, setFilter] = useState('');
 
-    if (parsedContacts) {
-      this.setState({ contacts: parsedContacts });
-    }
-  }
-
-  componentDidUpdate(prevProps, prevState) {
-    if (this.state.contacts !== prevState.contacts) {
-      localStorage.setItem('contacts', JSON.stringify(this.state.contacts));
-    }
-  }
-
-  formSubmitHendler = data => {
+  const formSubmitHendler = data => {
     const contact = {
       id: nanoid(),
       ...data,
     };
 
-    if (this.state.contacts.find(item => item.name.toLowerCase() === contact.name.toLowerCase()))
+    if (
+      contacts.find(
+        item => item.name.toLowerCase() === contact.name.toLowerCase()
+      )
+    )
       alert(`"${contact.name}" is already in contacts.`);
     else {
-      this.setState(({ contacts }) => ({
-        contacts: [...contacts, contact],
-      }));
+      setContacts(prevState => 
+         [...prevState, contact]
+      );
     }
   };
 
-  changeFilter = e => {
-    this.setState({ filter: e.currentTarget.value });
+  const changeFilter = (e) => {
+    setFilter( e.currentTarget.value );
   };
 
-  getVisibleContacts = () => {
-    const { contacts, filter } = this.state;
+  const deleteContact = (contactId) => {
+    setContacts(prevState => 
+      prevState.filter(contact => contact.id !== contactId),
+    );
+  };
+
+  const getVisibleContacts = () => {
+
     const normalizedFilter = filter.toLowerCase();
 
     return contacts.filter(contact =>
       contact.name.toLowerCase().includes(normalizedFilter)
     );
-  };
+  };    
 
-  deleteContact = contactId => {
-    this.setState(prevState => ({
-      contacts: prevState.contacts.filter(contact => contact.id !== contactId),
-    }));
-  };
+  useEffect(() => {
+    localStorage.setItem('contacts', JSON.stringify(contacts));
+  }, [contacts]);
 
-  render() {
-    const visibleContacts = this.getVisibleContacts();
-
-    return (
-      <div className={css.wrapper}>
-        <h1 className={css.title}>Phonebook</h1>
-        <ContactForm onSubmit={this.formSubmitHendler} />
-        <h2 className={css.listTitle}>Contacts</h2>
-        <Filter value={this.state.filter} onChange={this.changeFilter} />
-        <ContactList
-          contacts={visibleContacts}
-          onDeleteContact={this.deleteContact}
-          id={this.state.contacts.id}
-        />
-      </div>
-    );
-  }
+  return (
+    <div className={css.wrapper}>
+      <h1 className={css.title}>Phonebook</h1>
+      <ContactForm onSubmit={formSubmitHendler} />
+      <h2 className={css.listTitle}>Contacts</h2>
+      <Filter value={filter} onChange={changeFilter} />
+      <ContactList
+        contacts={getVisibleContacts()}
+        onDeleteContact={deleteContact}
+        id={contacts.id}
+      />
+    </div>
+  );
 }
