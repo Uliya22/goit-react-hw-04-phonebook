@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { nanoid } from 'nanoid';
-import  {ContactForm}  from './contactform/ContactForm';
+import { ContactForm } from './contactform/ContactForm';
 import { Filter } from './filter/Filter';
 import { ContactList } from './contactList/ContactList';
 import css from './App.module.css';
@@ -35,30 +35,27 @@ export const App = () => {
     )
       alert(`"${contact.name}" is already in contacts.`);
     else {
-      setContacts(prevState => 
-         [...prevState, contact]
-      );
+      setContacts(prevState => [...prevState, contact]);
     }
   };
 
-  const changeFilter = (e) => {
-    setFilter( e.currentTarget.value );
+  const changeFilter = e => {
+    setFilter(e.currentTarget.value);
   };
 
-  const deleteContact = (contactId) => {
-    setContacts(prevState => 
-      prevState.filter(contact => contact.id !== contactId),
+  const deleteContact = contactId => {
+    setContacts(prevState =>
+      prevState.filter(contact => contact.id !== contactId)
     );
   };
 
   const getVisibleContacts = () => {
-
     const normalizedFilter = filter.toLowerCase();
 
     return contacts.filter(contact =>
       contact.name.toLowerCase().includes(normalizedFilter)
     );
-  };    
+  };
 
   useEffect(() => {
     localStorage.setItem('contacts', JSON.stringify(contacts));
@@ -68,13 +65,17 @@ export const App = () => {
     <div className={css.wrapper}>
       <h1 className={css.title}>Phonebook</h1>
       <ContactForm onSubmit={formSubmitHendler} />
-      <h2 className={css.listTitle}>Contacts</h2>
-      <Filter value={filter} onChange={changeFilter} />
-      <ContactList
-        contacts={getVisibleContacts()}
-        onDeleteContact={deleteContact}
-        id={contacts.id}
-      />
+      {contacts.length > 0 && (
+        <div>
+          <h2 className={css.listTitle}>Contacts</h2>
+          <Filter value={filter} onChange={changeFilter} />
+          <ContactList
+            contacts={getVisibleContacts()}
+            onDeleteContact={deleteContact}
+            id={contacts.id}
+          />
+        </div>
+      )}
     </div>
   );
-}
+};
